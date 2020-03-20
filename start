@@ -4,13 +4,6 @@
 
 set -e
 
-# Exec the specified command or fall back on bash
-if [ $# -eq 0 ]; then
-    cmd=( "bash" )
-else
-    cmd=( "$@" )
-fi
-
 run-hooks () {
     # Source scripts or run executable files in a directory
     if [[ ! -d "$1" ]] ; then
@@ -98,8 +91,8 @@ if [ $(id -u) == 0 ] ; then
     # Exec the command as NB_USER with the PATH and the rest of
     # the environment preserved
     run-hooks /usr/local/bin/before-notebook.d
-    echo "Executing the command: ${cmd[@]}"
-    exec sudo -E -H -u $NB_USER PATH=$PATH XDG_CACHE_HOME=/home/$NB_USER/.cache PYTHONPATH=${PYTHONPATH:-} "${cmd[@]}"
+    echo "Executing the command: ${@}"
+    exec sudo -E -H -u $NB_USER PATH=$PATH XDG_CACHE_HOME=/home/$NB_USER/.cache PYTHONPATH=${PYTHONPATH:-} "${@}"
 else
     if [[ "$NB_UID" == "$(id -u jovyan)" && "$NB_GID" == "$(id -g jovyan)" ]]; then
         # User is not attempting to override user/group via environment
@@ -142,6 +135,6 @@ else
 
     # Execute the command
     run-hooks /usr/local/bin/before-notebook.d
-    echo "Executing the command: ${cmd[@]}"
-    exec "${cmd[@]}"
+    echo "Executing the command: ${@}"
+    exec "${@}"
 fi
